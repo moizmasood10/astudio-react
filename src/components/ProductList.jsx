@@ -9,14 +9,13 @@ const ProductList = () => {
   const { products, totalProducts, pageSize, fetchProducts } = useContext(DataContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredProducts, setFilteredProducts] = useState(products);
-  const [searchTerm, setSearchTerm] = useState('');
 
   // Filters state
   const [showTitleFilter, setShowTitleFilter] = useState(false);
   const [showBrandFilter, setShowBrandFilter] = useState(false);
   const [titleFilter, setTitleFilter] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   useEffect(() => {
     setCurrentPage(1);
@@ -31,54 +30,21 @@ const ProductList = () => {
     setFilteredProducts(products);
   }, [products]);
 
-  useEffect(() => {
-    // Check if the search term is a number
-    const isNumeric = !isNaN(searchTerm) && !isNaN(parseFloat(searchTerm));
-  
-    const filtered = products.filter(product => {
-      // Add checks to ensure product properties are defined
-      const titleMatches = product.title?.toLowerCase().includes(searchTerm.toLowerCase());
-      const brandMatches = product.brand?.toLowerCase().includes(searchTerm.toLowerCase());
-      const categoryMatches = product.category?.toLowerCase().includes(searchTerm.toLowerCase());
-  
-      const stockMatches = isNumeric && product.stock?.toString() === searchTerm;
-      const ratingMatches = isNumeric && product.rating?.toString() === searchTerm;
-  
-      return titleMatches || brandMatches || categoryMatches || stockMatches || ratingMatches;
-    });
-  
-    setFilteredProducts(filtered);
-  }, [searchTerm, products]);
-  
-
   // Check if any filters are applied
-  const areFiltersApplied = titleFilter || brandFilter || categoryFilter !== 'All';
+  const areFiltersApplied = titleFilter || brandFilter || categoryFilter;
 
   // Handle API request when a filter is applied
   const applyFilter = async (filterType, filterValue) => {
     // Reset other filters when one filter is applied
     if (filterType !== 'title') setTitleFilter('');
     if (filterType !== 'brand') setBrandFilter('');
-
-    // Reset paginated view when filters are cleared
-    if (filterValue === '' || filterValue === 'All') {
-      fetchProducts(currentPage, pageSize);
-      return;
-    }
+    if (filterType !== 'category') setCategoryFilter('');
 
     let url = 'https://dummyjson.com/products';
-
-    // Category filtering
+    if (filterType === 'title') url = `${url}/search?q=${filterValue}`;
+    if (filterType === 'brand') url = `${url}/search?q=${filterValue}`;
     if (filterType === 'category') {
-      if (filterValue === 'All') {
-        // Fetch all products if "All" is selected
-        const response = await axios.get(url);
-        setFilteredProducts(response.data.products);
-        return; // Exit the function early
-      } else {
-        // Fetch products by category
-        url = `${url}/category/${filterValue.toLowerCase()}`; // Ensure category is in lowercase
-      }
+      url = `${url}/filter?key=category&value=${filterValue}`; // Correct category filter endpoint
     }
 
     try {
@@ -97,17 +63,29 @@ const ProductList = () => {
     applyFilter('category', selectedCategory);
   };
 
+  const handleSearch = (searchTerm) => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const filtered = products.filter(product => {
+      return (
+        product.title.toLowerCase().includes(lowerCaseSearchTerm) ||
+        product.brand.toLowerCase().includes(lowerCaseSearchTerm) ||
+        product.category.toLowerCase().includes(lowerCaseSearchTerm)
+      );
+    });
+    setFilteredProducts(filtered);
+  };
+
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-2xl font-bold font-neutra">Products</h1>
+      <h1 className="mb-4 text-2xl font-bold">Products</h1>
 
-      {/* Align search bar and filters in a single row */}
+      {/* Filters and Search Bar in One Row */}
       <div className="flex items-center mb-4 space-x-4">
         <PageSizeDropdown />
-        <SearchBar onSearch={(term) => setSearchTerm(term)} />
+        <SearchBar onSearch={handleSearch} />
 
-        {/* Title Filter */}
-        <div className="relative inline-block">
+        {/* Filters UI */}
+        <div className="relative inline-block mr-4">
           <div className="flex items-center">
             <span>Title</span>
             <button onClick={() => setShowTitleFilter(!showTitleFilter)}>
@@ -128,8 +106,7 @@ const ProductList = () => {
           )}
         </div>
 
-        {/* Brand Filter */}
-        <div className="relative inline-block">
+        <div className="relative inline-block mr-4">
           <div className="flex items-center">
             <span>Brand</span>
             <button onClick={() => setShowBrandFilter(!showBrandFilter)}>
@@ -150,7 +127,6 @@ const ProductList = () => {
           )}
         </div>
 
-        {/* Category Filter */}
         <div className="inline-block">
           <label htmlFor="categoryFilter" className="mr-2">Category</label>
           <select
@@ -159,8 +135,10 @@ const ProductList = () => {
             value={categoryFilter}
             onChange={handleCategoryChange}
           >
-            <option value="All">All</option>
+            <option value="">Select Category</option>
             <option value="laptops">Laptops</option>
+            <option value="smartphones">Smartphones</option>
+            {/* Add more categories as needed */}
           </select>
         </div>
       </div>
