@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'NeutraRegular';
+    src: url('./assets/fonts/neutra-text-alt.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NeutraLight';
+    src: url('./assets/fonts/neutra-text-light.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NeutraBold';
+    src: url('./assets/fonts/neutra-text-bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+}

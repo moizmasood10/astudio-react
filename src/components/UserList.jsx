@@ -30,6 +30,9 @@ const UserList = () => {
     setFilteredUsers(users);
   }, [users]);
 
+  // Check if any filters are applied
+  const areFiltersApplied = nameFilter || emailFilter || genderFilter;
+
   // Handle API request when a filter is applied
   const applyFilter = async (filterType, filterValue) => {
     // Reset other filters when one filter is applied
@@ -66,6 +69,7 @@ const UserList = () => {
       return (
         user.firstName.toLowerCase().includes(lowerCaseSearchTerm) ||
         user.lastName.toLowerCase().includes(lowerCaseSearchTerm) ||
+        user.maidenName.toLowerCase().includes(lowerCaseSearchTerm) ||
         user.email.toLowerCase().includes(lowerCaseSearchTerm) ||
         user.username.toLowerCase().includes(lowerCaseSearchTerm) ||
         user.bloodGroup.toLowerCase().includes(lowerCaseSearchTerm) ||
@@ -78,10 +82,10 @@ const UserList = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-neutra mb-4">Users</h1>
+      <h1 className="mb-4 text-2xl font-bold">Users</h1>
 
       {/* Filters and Search Bar in One Row */}
-      <div className="flex items-center space-x-4 mb-4">
+      <div className="flex items-center mb-4 space-x-4">
         <PageSizeDropdown />
         <SearchBar onSearch={handleSearch} />
 
@@ -97,7 +101,7 @@ const UserList = () => {
             <input
               type="text"
               placeholder="Filter by Name"
-              className="mt-2 border border-gray-300 p-2"
+              className="p-2 mt-2 border border-gray-300"
               value={nameFilter}
               onChange={(e) => {
                 setNameFilter(e.target.value);
@@ -118,7 +122,7 @@ const UserList = () => {
             <input
               type="text"
               placeholder="Filter by Email"
-              className="mt-2 border border-gray-300 p-2"
+              className="p-2 mt-2 border border-gray-300"
               value={emailFilter}
               onChange={(e) => {
                 setEmailFilter(e.target.value);
@@ -132,7 +136,7 @@ const UserList = () => {
           <label htmlFor="genderFilter" className="mr-2">Gender</label>
           <select
             id="genderFilter"
-            className="border border-gray-300 p-2"
+            className="p-2 border border-gray-300"
             value={genderFilter}
             onChange={handleGenderChange}
           >
@@ -146,41 +150,41 @@ const UserList = () => {
       {/* Render the user data in a table */}
       <div className="overflow-x-auto">
         <table className="min-w-full border border-grey">
-          <thead className="bg-blue text-white">
+          <thead className="bg-blue">
             <tr>
-              <th className="px-4 py-2 text-center">First Name</th>
-              <th className="px-4 py-2 text-center">Last Name</th>
-              <th className="px-4 py-2 text-center">Maiden Name</th>
-              <th className="px-4 py-2 text-center">Age</th>
-              <th className="px-4 py-2 text-center">Gender</th>
-              <th className="px-4 py-2 text-center">Email</th>
-              <th className="px-4 py-2 text-center">Username</th>
-              <th className="px-4 py-2 text-center">Blood Group</th>
-              <th className="px-4 py-2 text-center">Eye Color</th>
+              <th className="px-4 py-2 text-center font-regular">First Name</th>
+              <th className="px-4 py-2 text-center font-regular">Last Name</th>
+              <th className="px-4 py-2 text-center font-regular">Maiden Name</th>
+              <th className="px-4 py-2 text-center font-regular">Age</th>
+              <th className="px-4 py-2 text-center font-regular">Gender</th>
+              <th className="px-4 py-2 text-center font-regular">Email</th>
+              <th className="px-4 py-2 text-center font-regular">Username</th>
+              <th className="px-4 py-2 text-center font-regular">Blood Group</th>
+              <th className="px-4 py-2 text-center font-regular">Eye Color</th>
             </tr>
           </thead>
           <tbody>
             {filteredUsers.map(user => (
-              <tr key={user.id} className="border-t hover:bg-grey transition duration-300">
-                <td className="px-4 py-2 text-center border border-grey">{user.firstName}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.lastName}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.maidenName}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.age}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.gender}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.email}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.username}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.bloodGroup}</td>
-                <td className="px-4 py-2 text-center border border-grey">{user.eyeColor}</td>
+              <tr key={user.id} className="transition duration-300 border-t hover:bg-grey">
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.firstName}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.lastName}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.maidenName}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.age}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.gender}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.email}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.username}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.bloodGroup}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{user.eyeColor}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination in the same row as filters and search bar */}
-      <div className="mt-4 flex justify-end">
+      {/* Conditionally show pagination */}
+      {!areFiltersApplied && (
         <Pagination totalItems={totalUsers} currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      </div>
+      )}
     </div>
   );
 };

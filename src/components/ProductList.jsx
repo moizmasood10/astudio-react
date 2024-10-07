@@ -36,24 +36,35 @@ const ProductList = () => {
     const isNumeric = !isNaN(searchTerm) && !isNaN(parseFloat(searchTerm));
   
     const filtered = products.filter(product => {
-      const titleMatches = product.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const brandMatches = product.brand.toLowerCase().includes(searchTerm.toLowerCase());
-      const categoryMatches = product.category.toLowerCase().includes(searchTerm.toLowerCase());
+      // Add checks to ensure product properties are defined
+      const titleMatches = product.title?.toLowerCase().includes(searchTerm.toLowerCase());
+      const brandMatches = product.brand?.toLowerCase().includes(searchTerm.toLowerCase());
+      const categoryMatches = product.category?.toLowerCase().includes(searchTerm.toLowerCase());
   
-      const stockMatches = isNumeric && product.stock.toString() === searchTerm;
-      const ratingMatches = isNumeric && product.rating.toString() === searchTerm;
+      const stockMatches = isNumeric && product.stock?.toString() === searchTerm;
+      const ratingMatches = isNumeric && product.rating?.toString() === searchTerm;
   
       return titleMatches || brandMatches || categoryMatches || stockMatches || ratingMatches;
     });
   
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
+  
+
+  // Check if any filters are applied
+  const areFiltersApplied = titleFilter || brandFilter || categoryFilter !== 'All';
 
   // Handle API request when a filter is applied
   const applyFilter = async (filterType, filterValue) => {
     // Reset other filters when one filter is applied
     if (filterType !== 'title') setTitleFilter('');
     if (filterType !== 'brand') setBrandFilter('');
+
+    // Reset paginated view when filters are cleared
+    if (filterValue === '' || filterValue === 'All') {
+      fetchProducts(currentPage, pageSize);
+      return;
+    }
 
     let url = 'https://dummyjson.com/products';
 
@@ -88,8 +99,8 @@ const ProductList = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-neutra mb-4">Products</h1>
-      
+      <h1 className="mb-4 text-2xl font-bold font-neutra">Products</h1>
+
       {/* Align search bar and filters in a single row */}
       <div className="flex items-center mb-4 space-x-4">
         <PageSizeDropdown />
@@ -107,7 +118,7 @@ const ProductList = () => {
             <input
               type="text"
               placeholder="Filter by Title"
-              className="mt-2 border border-gray-300 p-2"
+              className="p-2 mt-2 border border-gray-300"
               value={titleFilter}
               onChange={(e) => {
                 setTitleFilter(e.target.value);
@@ -129,7 +140,7 @@ const ProductList = () => {
             <input
               type="text"
               placeholder="Filter by Brand"
-              className="mt-2 border border-gray-300 p-2"
+              className="p-2 mt-2 border border-gray-300"
               value={brandFilter}
               onChange={(e) => {
                 setBrandFilter(e.target.value);
@@ -144,7 +155,7 @@ const ProductList = () => {
           <label htmlFor="categoryFilter" className="mr-2">Category</label>
           <select
             id="categoryFilter"
-            className="border border-gray-300 p-2"
+            className="p-2 border border-gray-300"
             value={categoryFilter}
             onChange={handleCategoryChange}
           >
@@ -157,30 +168,33 @@ const ProductList = () => {
       {/* Render the product data in a table */}
       <div className="overflow-x-auto">
         <table className="min-w-full border border-grey">
-          <thead className="bg-blue text-white">
+          <thead className="bg-blue">
             <tr>
-              <th className="px-4 py-2 text-center">Title</th>
-              <th className="px-4 py-2 text-center">Brand</th>
-              <th className="px-4 py-2 text-center">Category</th>
-              <th className="px-4 py-2 text-center">Stock</th>
-              <th className="px-4 py-2 text-center">Rating</th>
+              <th className="px-4 py-2 text-center font-regular">Title</th>
+              <th className="px-4 py-2 text-center font-regular">Brand</th>
+              <th className="px-4 py-2 text-center font-regular">Category</th>
+              <th className="px-4 py-2 text-center font-regular">Stock</th>
+              <th className="px-4 py-2 text-center font-regular">Rating</th>
             </tr>
           </thead>
           <tbody>
             {filteredProducts.map(product => (
-              <tr key={product.id} className="border-t hover:bg-grey transition duration-300">
-                <td className="px-4 py-2 text-center border border-grey">{product.title}</td>
-                <td className="px-4 py-2 text-center border border-grey">{product.brand}</td>
-                <td className="px-4 py-2 text-center border border-grey">{product.category}</td>
-                <td className="px-4 py-2 text-center border border-grey">{product.stock}</td>
-                <td className="px-4 py-2 text-center border border-grey">{product.rating}</td>
+              <tr key={product.id} className="transition duration-300 border-t hover:bg-grey">
+                <td className="px-4 py-2 text-center border border-grey font-regular">{product.title}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{product.brand}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{product.category}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{product.stock}</td>
+                <td className="px-4 py-2 text-center border border-grey font-regular">{product.rating}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <Pagination totalItems={totalProducts} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      {/* Conditionally show pagination */}
+      {!areFiltersApplied && (
+        <Pagination totalItems={totalProducts} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      )}
     </div>
   );
 };

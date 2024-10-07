@@ -1,17 +1,35 @@
-// src/components/Navbar.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
+  const location = useLocation();
+
   return (
-    
-    <nav className="bg-yellow text-black p-4">
-      <ul className="flex justify-around">
-        <li>
-          <Link to="/users" className="font-bold hover:text-blue">Users</Link>
+    <nav className="p-4 text-black border-b border-gray-300 shadow-sm bg-yellow">
+      <ul className="flex items-center justify-around">
+        <li className="flex-1 text-center">
+          <Link
+            to="/users"
+            className={`font-bold px-4 py-2 ${
+              location.pathname === '/users'
+                ? 'text-blue-600 underline underline-offset-8 decoration-2'
+                : 'hover:text-blue-400 transition-colors'
+            }`}
+          >
+            Users
+          </Link>
         </li>
-        <li>
-          <Link to="/products" className="font-bold hover:text-blue">Products</Link>
+        <li className="flex-1 text-center border-l border-gray-300">
+          <Link
+            to="/products"
+            className={`font-bold px-4 py-2 ${
+              location.pathname === '/products'
+                ? 'text-blue-600 underline underline-offset-8 decoration-2'
+                : 'hover:text-blue-400 transition-colors'
+            }`}
+          >
+            Products
+          </Link>
         </li>
       </ul>
     </nav>

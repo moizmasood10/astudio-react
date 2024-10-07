@@ -12,6 +12,11 @@ export default {
         blue: '#c0e3e5',
         // yellow: '#fdc936',
       },
+      fontFamily: {
+        regular: ['NeutraRegular', 'sans-serif'],
+        light: ['NeutraLight', 'sans-serif'],
+        bold: ['NeutraBold', 'sans-serif'],
+      },
     },
   },
   plugins: [],
